@@ -31,6 +31,12 @@
                 <Separator/>
                 <MenuItem Header="Za_kończ" Click="Exit_Click"/>
             </MenuItem>
+            <MenuItem Header="_Edycja">
+                <MenuItem x:Name="UndoMenuItem" Header="_Cofnij" Click="Undo_Click"
+                          InputGestureText="Ctrl+Z" IsEnabled="False"/>
+                <MenuItem x:Name="RedoMenuItem" Header="_Ponów" Click="Redo_Click"
+                          InputGestureText="Ctrl+Y" IsEnabled="False"/>
+            </MenuItem>
             <MenuItem Header="_Narzędzia">
                 <MenuItem Header="_Waliduj" Click="Validate_Click" InputGestureText="F5"/>
                 <Separator/>
@@ -69,13 +75,10 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-
                     <TextBlock Grid.Column="0" Text="Sport:" VerticalAlignment="Center" Margin="0,0,6,0"/>
                     <ComboBox Grid.Column="1" x:Name="SportCombo" VerticalAlignment="Center"/>
-
                     <TextBlock Grid.Column="2" Text="Data startu:" VerticalAlignment="Center" Margin="12,0,6,0"/>
                     <DatePicker Grid.Column="3" x:Name="StartDatePicker" VerticalAlignment="Center"/>
-
                     <TextBlock Grid.Column="4" Text="Godz.:" VerticalAlignment="Center" Margin="8,0,4,0"/>
                     <TextBox Grid.Column="5" x:Name="StartTimePicker" VerticalAlignment="Center"
                              Width="90" HorizontalAlignment="Left" Margin="0,0,12,0"/>
@@ -106,7 +109,6 @@
                 </DataGrid.Columns>
             </DataGrid>
 
-            <!-- Splitter laps/trackpoints -->
             <GridSplitter Grid.Row="3" HorizontalAlignment="Stretch" Background="#DDD"/>
 
             <!-- Trackpoints panel -->
@@ -115,7 +117,6 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-
                 <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,2">
                     <TextBlock x:Name="TrackpointsHeader" Text="Punkty trasy" FontWeight="SemiBold"
                                VerticalAlignment="Center" Margin="0,0,12,0"/>
@@ -125,7 +126,6 @@
                     <Button Content="Auto-oblicz czas" Click="AutoTime_Click"
                             ToolTip="Rozdziela czas proporcjonalnie do dystansu każdego punktu"/>
                 </StackPanel>
-
                 <DataGrid Grid.Row="1" x:Name="TrackpointsGrid">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Czas" Binding="{Binding Time, StringFormat=\{0:yyyy-MM-dd HH:mm:ss\}}" Width="150"/>
@@ -140,20 +140,10 @@
                 </DataGrid>
             </Grid>
 
-            <!-- Splitter trackpoints/validation -->
             <GridSplitter Grid.Row="5" HorizontalAlignment="Stretch" Background="#DDD"/>
 
             <!-- Validation panel -->
             <Expander Grid.Row="6" x:Name="ValidationExpander" Header="Walidacja" IsExpanded="False">
-                <Expander.HeaderTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Walidacja" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="ValidationBadge" Margin="8,0,0,0" VerticalAlignment="Center"
-                                       FontSize="11" Foreground="#666"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </Expander.HeaderTemplate>
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
