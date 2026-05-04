@@ -20,23 +20,25 @@ public partial class ShiftTimeDialog : Window
     {
         if (!TryGetOffset(out var offset))
         {
-            PreviewText.Text = "Podaj liczby całkowite (mogą być ujemne).";
+            PreviewText.Text = "Enter integers (may be negative).";
             return;
         }
 
         if (offset == TimeSpan.Zero)
         {
-            PreviewText.Text = "Brak przesunięcia.";
+            PreviewText.Text = "No shift.";
             return;
         }
 
-        var sign = offset < TimeSpan.Zero ? "cofnięcie o" : "przesunięcie do przodu o";
+        var direction = offset < TimeSpan.Zero ? "back" : "forward";
         var abs = offset.Duration();
         var parts = new List<string>();
-        if (abs.Hours != 0) parts.Add($"{abs.Hours} godz.");
-        if (abs.Minutes != 0) parts.Add($"{abs.Minutes} min.");
-        if (abs.Seconds != 0) parts.Add($"{abs.Seconds} sek.");
-        PreviewText.Text = parts.Count > 0 ? $"Wynik: {sign} {string.Join(" ", parts)}" : "Brak przesunięcia.";
+        if (abs.Hours != 0) parts.Add($"{abs.Hours} h");
+        if (abs.Minutes != 0) parts.Add($"{abs.Minutes} min");
+        if (abs.Seconds != 0) parts.Add($"{abs.Seconds} sec");
+        PreviewText.Text = parts.Count > 0
+            ? $"Result: {direction} by {string.Join(" ", parts)}"
+            : "No shift.";
     }
 
     private bool TryGetOffset(out TimeSpan offset)
@@ -53,7 +55,7 @@ public partial class ShiftTimeDialog : Window
     {
         if (!TryGetOffset(out var offset))
         {
-            MessageBox.Show("Podaj liczby całkowite w polach Godziny, Minuty i Sekundy.", "Błąd",
+            MessageBox.Show("Enter integers in the Hours, Minutes and Seconds fields.", "Error",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }

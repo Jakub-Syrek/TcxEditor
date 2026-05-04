@@ -44,13 +44,13 @@ public partial class MainWindow : Window
     {
         UndoMenuItem.IsEnabled = _commandHistory.CanUndo;
         UndoMenuItem.Header = _commandHistory.CanUndo
-            ? $"_Cofnij ({_commandHistory.UndoDescription})"
-            : "_Cofnij";
+            ? $"_Undo ({_commandHistory.UndoDescription})"
+            : "_Undo";
 
         RedoMenuItem.IsEnabled = _commandHistory.CanRedo;
         RedoMenuItem.Header = _commandHistory.CanRedo
-            ? $"_Ponów ({_commandHistory.RedoDescription})"
-            : "_Ponów";
+            ? $"_Redo ({_commandHistory.RedoDescription})"
+            : "_Redo";
 
         SetDirty(true);
         RefreshGrids();
@@ -87,8 +87,8 @@ public partial class MainWindow : Window
 
         var dlg = new OpenFileDialog
         {
-            Filter = "Pliki TCX (*.tcx)|*.tcx|Wszystkie pliki (*.*)|*.*",
-            Title = "Otwórz plik TCX"
+            Filter = "TCX files (*.tcx)|*.tcx|All files (*.*)|*.*",
+            Title = "Open TCX file"
         };
         if (dlg.ShowDialog() != true) return;
 
@@ -104,7 +104,7 @@ public partial class MainWindow : Window
                 NewActivity();
 
             SetDirty(false);
-            SetStatus($"Otwarto: {Path.GetFileName(dlg.FileName)}");
+            SetStatus($"Opened: {Path.GetFileName(dlg.FileName)}");
 
             var issues = ValidationService.Validate(_db);
             ShowValidationResults(issues);
@@ -112,7 +112,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Błąd podczas otwierania pliku:\n{ex.Message}", "Błąd odczytu",
+            MessageBox.Show($"Error opening file:\n{ex.Message}", "Read error",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
@@ -127,10 +127,10 @@ public partial class MainWindow : Window
     {
         var dlg = new SaveFileDialog
         {
-            Filter = "Pliki TCX (*.tcx)|*.tcx",
-            Title = "Zapisz plik TCX",
+            Filter = "TCX files (*.tcx)|*.tcx",
+            Title = "Save TCX file",
             DefaultExt = ".tcx",
-            FileName = _currentFilePath != null ? Path.GetFileName(_currentFilePath) : "aktywnosc.tcx"
+            FileName = _currentFilePath != null ? Path.GetFileName(_currentFilePath) : "activity.tcx"
         };
         if (dlg.ShowDialog() != true) return;
         SaveToFile(dlg.FileName);
@@ -150,7 +150,7 @@ public partial class MainWindow : Window
         var issues = ValidationService.Validate(_db);
         ShowValidationResults(issues);
         ValidationExpander.IsExpanded = true;
-        if (issues.Count == 0) SetStatus("Walidacja zakończona — brak problemów.");
+        if (issues.Count == 0) SetStatus("Validation complete — no issues found.");
     }
 
     private void ShowValidationResults(List<ValidationIssue> issues)
@@ -161,15 +161,15 @@ public partial class MainWindow : Window
 
         if (issues.Count == 0)
         {
-            ValidationSummaryText.Text = "Walidacja: OK";
+            ValidationSummaryText.Text = "Validation: OK";
             ValidationSummaryText.Foreground = System.Windows.Media.Brushes.Green;
         }
         else
         {
             var parts = new List<string>();
-            if (errors > 0) parts.Add($"{errors} błąd(-ów)");
-            if (warnings > 0) parts.Add($"{warnings} ostrzeżenie(-ń)");
-            ValidationSummaryText.Text = "Walidacja: " + string.Join(", ", parts);
+            if (errors > 0) parts.Add($"{errors} error(s)");
+            if (warnings > 0) parts.Add($"{warnings} warning(s)");
+            ValidationSummaryText.Text = "Validation: " + string.Join(", ", parts);
             ValidationSummaryText.Foreground = errors > 0
                 ? System.Windows.Media.Brushes.Red
                 : System.Windows.Media.Brushes.DarkOrange;
@@ -197,7 +197,7 @@ public partial class MainWindow : Window
 
         _commandHistory.Execute(new ShiftTimeCommand(_currentActivity, offset));
         SyncActivityToUi();
-        SetStatus($"Zmieniono datę o {(int)offset.TotalDays} dzień(-ni).");
+        SetStatus($"Changed date by {(int)offset.TotalDays} day(s).");
     }
 
     private void ShiftTime_Click(object sender, RoutedEventArgs e)
@@ -212,7 +212,7 @@ public partial class MainWindow : Window
         SyncActivityToUi();
 
         var abs = dlg.Offset.Duration();
-        SetStatus($"Czas przesunięty o {abs.Hours:D2}:{abs.Minutes:D2}:{abs.Seconds:D2}.");
+        SetStatus($"Time shifted by {abs.Hours:D2}:{abs.Minutes:D2}:{abs.Seconds:D2}.");
     }
 
     // ── Laps (Command + Builder patterns) ─────────────────────────────────
@@ -251,8 +251,8 @@ public partial class MainWindow : Window
     {
         if (_currentActivity == null || LapsGrid.SelectedItem is not TcxLap lap) return;
 
-        if (MessageBox.Show("Usunąć zaznaczone okrążenie (wraz z punktami trasy)?",
-            "Potwierdź usunięcie", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+        if (MessageBox.Show("Delete selected lap (with its trackpoints)?",
+            "Confirm deletion", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
             return;
 
         _commandHistory.Execute(new DeleteLapCommand(_currentActivity, lap));
@@ -264,12 +264,12 @@ public partial class MainWindow : Window
         if (LapsGrid.SelectedItem is TcxLap lap)
         {
             TrackpointsGrid.ItemsSource = lap.Trackpoints;
-            TrackpointsHeader.Text = $"Punkty trasy — okrążenie {_currentActivity?.Laps.IndexOf(lap) + 1}";
+            TrackpointsHeader.Text = $"Trackpoints — lap {_currentActivity?.Laps.IndexOf(lap) + 1}";
         }
         else
         {
             TrackpointsGrid.ItemsSource = null;
-            TrackpointsHeader.Text = "Punkty trasy";
+            TrackpointsHeader.Text = "Trackpoints";
         }
     }
 
@@ -323,8 +323,8 @@ public partial class MainWindow : Window
         var totalDist = lap.Trackpoints.LastOrDefault()?.DistanceMeters ?? lap.DistanceMeters;
         if (totalDist <= 0)
         {
-            MessageBox.Show("Ustaw dystans dla punktów trasy przed użyciem tej funkcji.",
-                "Brak danych", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show("Set distance for trackpoints before using this function.",
+                "No data", MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
 
@@ -351,7 +351,7 @@ public partial class MainWindow : Window
         StartTimePicker.Text = activity.StartTime.ToString("HH:mm:ss");
         LapsGrid.ItemsSource = activity.Laps;
         TrackpointsGrid.ItemsSource = null;
-        TrackpointsHeader.Text = "Punkty trasy";
+        TrackpointsHeader.Text = "Trackpoints";
     }
 
     private void SyncActivityToUi()
@@ -389,8 +389,8 @@ public partial class MainWindow : Window
         {
             ValidationExpander.IsExpanded = true;
             MessageBox.Show(
-                $"Plik zawiera {errors} błąd(-ów) walidacji.\nPopraw błędy przed zapisem.",
-                "Błędy walidacji — zapis anulowany", MessageBoxButton.OK, MessageBoxImage.Error);
+                $"File contains {errors} validation error(s).\nFix errors before saving.",
+                "Validation errors — save cancelled", MessageBoxButton.OK, MessageBoxImage.Error);
             return;
         }
 
@@ -399,8 +399,8 @@ public partial class MainWindow : Window
         {
             ValidationExpander.IsExpanded = true;
             if (MessageBox.Show(
-                $"Plik zawiera {warnings} ostrzeżenie(-ń). Czy mimo to zapisać?",
-                "Ostrzeżenia walidacji", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+                $"File contains {warnings} warning(s). Save anyway?",
+                "Validation warnings", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
                 return;
         }
 
@@ -409,11 +409,11 @@ public partial class MainWindow : Window
             _repository.Save(_db, path);
             _currentFilePath = path;
             SetDirty(false);
-            SetStatus($"Zapisano: {Path.GetFileName(path)}");
+            SetStatus($"Saved: {Path.GetFileName(path)}");
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Błąd podczas zapisywania:\n{ex.Message}", "Błąd",
+            MessageBox.Show($"Error saving:\n{ex.Message}", "Error",
                 MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
@@ -421,15 +421,15 @@ public partial class MainWindow : Window
     private bool ConfirmDiscardChanges()
     {
         if (!_isDirty) return true;
-        return MessageBox.Show("Masz niezapisane zmiany. Kontynuować?",
-            "Niezapisane zmiany", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+        return MessageBox.Show("You have unsaved changes. Continue?",
+            "Unsaved changes", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
     }
 
     private void SetDirty(bool dirty)
     {
         _isDirty = dirty;
-        var name = _currentFilePath != null ? Path.GetFileName(_currentFilePath) : "Nowy plik";
-        Title = dirty ? $"Edytor TCX — {name} *" : $"Edytor TCX — {name}";
+        var name = _currentFilePath != null ? Path.GetFileName(_currentFilePath) : "New file";
+        Title = dirty ? $"TCX Editor — {name} *" : $"TCX Editor — {name}";
     }
 
     private void SetStatus(string msg) => StatusText.Text = msg;

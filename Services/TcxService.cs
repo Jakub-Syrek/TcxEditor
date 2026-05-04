@@ -15,7 +15,7 @@ public static class TcxService
     public static TcxDatabase Load(string path)
     {
         var doc = XDocument.Load(path);
-        var root = doc.Root ?? throw new InvalidDataException("Brak głównego elementu XML.");
+        var root = doc.Root ?? throw new InvalidDataException("Missing XML root element.");
         var db = new TcxDatabase();
 
         foreach (var actEl in root.Descendants(Ns + "Activity"))

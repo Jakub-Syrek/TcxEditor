@@ -17,7 +17,7 @@ public partial class ChangeDateDialog : Window
     {
         if (NewDatePicker.SelectedDate is not DateTime d)
         {
-            MessageBox.Show("Wybierz prawidłową datę.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("Please select a valid date.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
         NewDate = d.Date;

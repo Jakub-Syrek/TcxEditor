@@ -8,22 +8,21 @@ public class ActivityValidationStrategy : IValidationStrategy
     {
         if (db.Activities.Count == 0)
         {
-            yield return new ValidationIssue(IssueSeverity.Error, "Plik", "Brak aktywności w pliku.");
+            yield return new ValidationIssue(IssueSeverity.Error, "File", "No activities found in file.");
             yield break;
         }
 
         for (int i = 0; i < db.Activities.Count; i++)
         {
             var act = db.Activities[i];
-            var ctx = db.Activities.Count > 1 ? $"Aktywność {i + 1}" : "Aktywność";
+            var ctx = db.Activities.Count > 1 ? $"Activity {i + 1}" : "Activity";
 
             if (!SportTypes.All.Contains(act.Sport))
                 yield return new ValidationIssue(IssueSeverity.Warning, ctx,
-                    $"Nieznany typ sportu: '{act.Sport}'. Garmin może odrzucić plik.");
+                    $"Unknown sport type: '{act.Sport}'. Garmin may reject the file.");
 
             if (act.Laps.Count == 0)
-                yield return new ValidationIssue(IssueSeverity.Error, ctx,
-                    "Aktywność nie zawiera żadnych okrążeń.");
+                yield return new ValidationIssue(IssueSeverity.Error, ctx, "Activity contains no laps.");
         }
     }
 }

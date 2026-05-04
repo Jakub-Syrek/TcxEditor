@@ -28,8 +28,7 @@ public partial class LapDialog : Window
 
     private void Ok_Click(object sender, RoutedEventArgs e)
     {
-        if (!TryApply())
-            return;
+        if (!TryApply()) return;
         DialogResult = true;
     }
 
@@ -39,14 +38,14 @@ public partial class LapDialog : Window
     {
         if (StartDate.SelectedDate is not DateTime date)
         {
-            MessageBox.Show("Podaj prawidłową datę.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("Please enter a valid date.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             return false;
         }
 
         if (!TimeSpan.TryParseExact(StartTime.Text.Trim(), @"hh\:mm\:ss", null, out var time) &&
             !TimeSpan.TryParseExact(StartTime.Text.Trim(), @"h\:mm\:ss", null, out time))
         {
-            MessageBox.Show("Godzina musi być w formacie HH:mm:ss.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("Time must be in HH:mm:ss format.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             return false;
         }
 
@@ -55,7 +54,7 @@ public partial class LapDialog : Window
         if (!double.TryParse(TotalTime.Text, System.Globalization.NumberStyles.Any,
             System.Globalization.CultureInfo.CurrentCulture, out var totalSec) || totalSec < 0)
         {
-            MessageBox.Show("Czas całkowity musi być liczbą >= 0.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("Total time must be a number >= 0.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             return false;
         }
         Lap.TotalTimeSeconds = totalSec;
@@ -63,7 +62,7 @@ public partial class LapDialog : Window
         if (!double.TryParse(Distance.Text, System.Globalization.NumberStyles.Any,
             System.Globalization.CultureInfo.CurrentCulture, out var dist) || dist < 0)
         {
-            MessageBox.Show("Dystans musi być liczbą >= 0.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show("Distance must be a number >= 0.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
             return false;
         }
         Lap.DistanceMeters = dist;

@@ -15,5 +15,5 @@ public class ValidationIssue
         Message = message;
     }
 
-    public string SeverityLabel => Severity == IssueSeverity.Error ? "Błąd" : "Ostrzeżenie";
+    public string SeverityLabel => Severity == IssueSeverity.Error ? "Error" : "Warning";
 }

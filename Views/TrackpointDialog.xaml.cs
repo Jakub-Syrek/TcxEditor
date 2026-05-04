@@ -24,8 +24,7 @@ public partial class TrackpointDialog : Window
 
     private void Ok_Click(object sender, RoutedEventArgs e)
     {
-        if (!TryApply())
-            return;
+        if (!TryApply()) return;
         DialogResult = true;
     }
 
@@ -37,7 +36,7 @@ public partial class TrackpointDialog : Window
             System.Globalization.CultureInfo.InvariantCulture,
             System.Globalization.DateTimeStyles.None, out var time))
         {
-            MessageBox.Show("Czas musi być w formacie RRRR-MM-DD HH:mm:ss", "Błąd",
+            MessageBox.Show("Time must be in YYYY-MM-DD HH:mm:ss format.", "Error",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
             return false;
         }
@@ -49,7 +48,7 @@ public partial class TrackpointDialog : Window
         if (Trackpoint.LatitudeDegrees.HasValue &&
             (Trackpoint.LatitudeDegrees < -90 || Trackpoint.LatitudeDegrees > 90))
         {
-            MessageBox.Show("Szerokość geograficzna musi być między -90 a 90.", "Błąd",
+            MessageBox.Show("Latitude must be between -90 and 90.", "Error",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
             return false;
         }
@@ -57,7 +56,7 @@ public partial class TrackpointDialog : Window
         if (Trackpoint.LongitudeDegrees.HasValue &&
             (Trackpoint.LongitudeDegrees < -180 || Trackpoint.LongitudeDegrees > 180))
         {
-            MessageBox.Show("Długość geograficzna musi być między -180 a 180.", "Błąd",
+            MessageBox.Show("Longitude must be between -180 and 180.", "Error",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
             return false;
         }

@@ -1,7 +1,7 @@
 <Window x:Class="TcxEditor.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Edytor TCX — Garmin" Height="780" Width="1060"
+        Title="TCX Editor — Garmin" Height="780" Width="1060"
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
@@ -20,39 +20,36 @@
     </Window.Resources>
 
     <DockPanel>
-        <!-- Menu -->
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="_Plik">
-                <MenuItem Header="_Nowy" Click="New_Click" InputGestureText="Ctrl+N"/>
-                <MenuItem Header="_Otwórz..." Click="Open_Click" InputGestureText="Ctrl+O"/>
+            <MenuItem Header="_File">
+                <MenuItem Header="_New" Click="New_Click" InputGestureText="Ctrl+N"/>
+                <MenuItem Header="_Open..." Click="Open_Click" InputGestureText="Ctrl+O"/>
                 <Separator/>
-                <MenuItem Header="_Zapisz" Click="Save_Click" InputGestureText="Ctrl+S"/>
-                <MenuItem Header="Zapisz _jako..." Click="SaveAs_Click" InputGestureText="Ctrl+Shift+S"/>
+                <MenuItem Header="_Save" Click="Save_Click" InputGestureText="Ctrl+S"/>
+                <MenuItem Header="Save _As..." Click="SaveAs_Click" InputGestureText="Ctrl+Shift+S"/>
                 <Separator/>
-                <MenuItem Header="Za_kończ" Click="Exit_Click"/>
+                <MenuItem Header="E_xit" Click="Exit_Click"/>
             </MenuItem>
-            <MenuItem Header="_Edycja">
-                <MenuItem x:Name="UndoMenuItem" Header="_Cofnij" Click="Undo_Click"
+            <MenuItem Header="_Edit">
+                <MenuItem x:Name="UndoMenuItem" Header="_Undo" Click="Undo_Click"
                           InputGestureText="Ctrl+Z" IsEnabled="False"/>
-                <MenuItem x:Name="RedoMenuItem" Header="_Ponów" Click="Redo_Click"
+                <MenuItem x:Name="RedoMenuItem" Header="_Redo" Click="Redo_Click"
                           InputGestureText="Ctrl+Y" IsEnabled="False"/>
             </MenuItem>
-            <MenuItem Header="_Narzędzia">
-                <MenuItem Header="_Waliduj" Click="Validate_Click" InputGestureText="F5"/>
+            <MenuItem Header="_Tools">
+                <MenuItem Header="_Validate" Click="Validate_Click" InputGestureText="F5"/>
                 <Separator/>
-                <MenuItem Header="Zmień _datę aktywności..." Click="ChangeDate_Click"/>
-                <MenuItem Header="Przesuń _czas aktywności..." Click="ShiftTime_Click"/>
+                <MenuItem Header="Change Activity _Date..." Click="ChangeDate_Click"/>
+                <MenuItem Header="Shift Activity _Time..." Click="ShiftTime_Click"/>
             </MenuItem>
         </Menu>
 
-        <!-- Status bar -->
         <StatusBar DockPanel.Dock="Bottom">
-            <TextBlock x:Name="StatusText" Text="Gotowy"/>
+            <TextBlock x:Name="StatusText" Text="Ready"/>
             <Separator/>
             <TextBlock x:Name="ValidationSummaryText"/>
         </StatusBar>
 
-        <!-- Main content -->
         <Grid Margin="8">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -65,7 +62,7 @@
             </Grid.RowDefinitions>
 
             <!-- Activity info -->
-            <GroupBox Grid.Row="0" Header="Aktywność" Padding="8" Margin="0,0,0,4">
+            <GroupBox Grid.Row="0" Header="Activity" Padding="8" Margin="0,0,0,4">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -77,9 +74,9 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="Sport:" VerticalAlignment="Center" Margin="0,0,6,0"/>
                     <ComboBox Grid.Column="1" x:Name="SportCombo" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Column="2" Text="Data startu:" VerticalAlignment="Center" Margin="12,0,6,0"/>
+                    <TextBlock Grid.Column="2" Text="Start date:" VerticalAlignment="Center" Margin="12,0,6,0"/>
                     <DatePicker Grid.Column="3" x:Name="StartDatePicker" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Column="4" Text="Godz.:" VerticalAlignment="Center" Margin="8,0,4,0"/>
+                    <TextBlock Grid.Column="4" Text="Time:" VerticalAlignment="Center" Margin="8,0,4,0"/>
                     <TextBox Grid.Column="5" x:Name="StartTimePicker" VerticalAlignment="Center"
                              Width="90" HorizontalAlignment="Left" Margin="0,0,12,0"/>
                 </Grid>
@@ -87,25 +84,25 @@
 
             <!-- Laps toolbar -->
             <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,2">
-                <TextBlock Text="Okrążenia" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                <Button Content="Dodaj" Click="AddLap_Click"/>
-                <Button Content="Edytuj" Click="EditLap_Click"/>
-                <Button Content="Usuń" Click="DeleteLap_Click"/>
+                <TextBlock Text="Laps" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <Button Content="Add" Click="AddLap_Click"/>
+                <Button Content="Edit" Click="EditLap_Click"/>
+                <Button Content="Delete" Click="DeleteLap_Click"/>
             </StackPanel>
 
             <!-- Laps grid -->
             <DataGrid Grid.Row="2" x:Name="LapsGrid" SelectionChanged="LapsGrid_SelectionChanged">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Start" Binding="{Binding StartTime, StringFormat=\{0:yyyy-MM-dd HH:mm:ss\}}" Width="150"/>
-                    <DataGridTextColumn Header="Czas" Binding="{Binding Duration}" Width="80"/>
-                    <DataGridTextColumn Header="Dystans (km)" Binding="{Binding DistanceKm}" Width="100"/>
-                    <DataGridTextColumn Header="Maks. prędkość (m/s)" Binding="{Binding MaximumSpeed, StringFormat=F2}" Width="130"/>
-                    <DataGridTextColumn Header="Kalorie" Binding="{Binding Calories}" Width="70"/>
-                    <DataGridTextColumn Header="Śr. HR" Binding="{Binding AverageHeartRate}" Width="70"/>
-                    <DataGridTextColumn Header="Maks. HR" Binding="{Binding MaximumHeartRate}" Width="80"/>
-                    <DataGridTextColumn Header="Intensywność" Binding="{Binding Intensity}" Width="100"/>
-                    <DataGridTextColumn Header="Punkty" Binding="{Binding Trackpoints.Count}" Width="70"/>
-                    <DataGridTextColumn Header="Notatki" Binding="{Binding Notes}" Width="*"/>
+                    <DataGridTextColumn Header="Duration" Binding="{Binding Duration}" Width="80"/>
+                    <DataGridTextColumn Header="Distance (km)" Binding="{Binding DistanceKm}" Width="100"/>
+                    <DataGridTextColumn Header="Max Speed (m/s)" Binding="{Binding MaximumSpeed, StringFormat=F2}" Width="120"/>
+                    <DataGridTextColumn Header="Calories" Binding="{Binding Calories}" Width="70"/>
+                    <DataGridTextColumn Header="Avg HR" Binding="{Binding AverageHeartRate}" Width="65"/>
+                    <DataGridTextColumn Header="Max HR" Binding="{Binding MaximumHeartRate}" Width="65"/>
+                    <DataGridTextColumn Header="Intensity" Binding="{Binding Intensity}" Width="90"/>
+                    <DataGridTextColumn Header="Trackpoints" Binding="{Binding Trackpoints.Count}" Width="85"/>
+                    <DataGridTextColumn Header="Notes" Binding="{Binding Notes}" Width="*"/>
                 </DataGrid.Columns>
             </DataGrid>
 
@@ -118,24 +115,24 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,2">
-                    <TextBlock x:Name="TrackpointsHeader" Text="Punkty trasy" FontWeight="SemiBold"
+                    <TextBlock x:Name="TrackpointsHeader" Text="Trackpoints" FontWeight="SemiBold"
                                VerticalAlignment="Center" Margin="0,0,12,0"/>
-                    <Button Content="Dodaj" Click="AddTrackpoint_Click"/>
-                    <Button Content="Edytuj" Click="EditTrackpoint_Click"/>
-                    <Button Content="Usuń" Click="DeleteTrackpoint_Click"/>
-                    <Button Content="Auto-oblicz czas" Click="AutoTime_Click"
-                            ToolTip="Rozdziela czas proporcjonalnie do dystansu każdego punktu"/>
+                    <Button Content="Add" Click="AddTrackpoint_Click"/>
+                    <Button Content="Edit" Click="EditTrackpoint_Click"/>
+                    <Button Content="Delete" Click="DeleteTrackpoint_Click"/>
+                    <Button Content="Auto-distribute time" Click="AutoTime_Click"
+                            ToolTip="Distribute timestamps proportionally based on each trackpoint's distance"/>
                 </StackPanel>
                 <DataGrid Grid.Row="1" x:Name="TrackpointsGrid">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Czas" Binding="{Binding Time, StringFormat=\{0:yyyy-MM-dd HH:mm:ss\}}" Width="150"/>
-                        <DataGridTextColumn Header="Szer. (°)" Binding="{Binding LatitudeDegrees, StringFormat=F6}" Width="100"/>
-                        <DataGridTextColumn Header="Dług. (°)" Binding="{Binding LongitudeDegrees, StringFormat=F6}" Width="100"/>
-                        <DataGridTextColumn Header="Wys. (m)" Binding="{Binding AltitudeMeters, StringFormat=F1}" Width="80"/>
-                        <DataGridTextColumn Header="Dystans (m)" Binding="{Binding DistanceMeters, StringFormat=F1}" Width="90"/>
-                        <DataGridTextColumn Header="Tętno" Binding="{Binding HeartRateBpm}" Width="70"/>
-                        <DataGridTextColumn Header="Kadencja" Binding="{Binding Cadence}" Width="80"/>
-                        <DataGridTextColumn Header="Prędkość (m/s)" Binding="{Binding Speed, StringFormat=F2}" Width="100"/>
+                        <DataGridTextColumn Header="Time" Binding="{Binding Time, StringFormat=\{0:yyyy-MM-dd HH:mm:ss\}}" Width="150"/>
+                        <DataGridTextColumn Header="Lat (°)" Binding="{Binding LatitudeDegrees, StringFormat=F6}" Width="90"/>
+                        <DataGridTextColumn Header="Lon (°)" Binding="{Binding LongitudeDegrees, StringFormat=F6}" Width="90"/>
+                        <DataGridTextColumn Header="Alt (m)" Binding="{Binding AltitudeMeters, StringFormat=F1}" Width="70"/>
+                        <DataGridTextColumn Header="Distance (m)" Binding="{Binding DistanceMeters, StringFormat=F1}" Width="90"/>
+                        <DataGridTextColumn Header="Heart Rate" Binding="{Binding HeartRateBpm}" Width="80"/>
+                        <DataGridTextColumn Header="Cadence" Binding="{Binding Cadence}" Width="75"/>
+                        <DataGridTextColumn Header="Speed (m/s)" Binding="{Binding Speed, StringFormat=F2}" Width="90"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>
@@ -143,22 +140,22 @@
             <GridSplitter Grid.Row="5" HorizontalAlignment="Stretch" Background="#DDD"/>
 
             <!-- Validation panel -->
-            <Expander Grid.Row="6" x:Name="ValidationExpander" Header="Walidacja" IsExpanded="False">
+            <Expander Grid.Row="6" x:Name="ValidationExpander" Header="Validation" IsExpanded="False">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*" MinHeight="80" MaxHeight="200"/>
                     </Grid.RowDefinitions>
                     <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,2,0,2">
-                        <Button Content="Waliduj (F5)" Click="Validate_Click" Padding="8,3"/>
+                        <Button Content="Validate (F5)" Click="Validate_Click" Padding="8,3"/>
                     </StackPanel>
                     <DataGrid Grid.Row="1" x:Name="ValidationGrid"
                               IsReadOnly="True" RowStyle="{StaticResource ErrorRow}"
                               HeadersVisibility="Column">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Typ" Binding="{Binding SeverityLabel}" Width="90"/>
-                            <DataGridTextColumn Header="Lokalizacja" Binding="{Binding Context}" Width="260"/>
-                            <DataGridTextColumn Header="Komunikat" Binding="{Binding Message}" Width="*"/>
+                            <DataGridTextColumn Header="Type" Binding="{Binding SeverityLabel}" Width="90"/>
+                            <DataGridTextColumn Header="Location" Binding="{Binding Context}" Width="260"/>
+                            <DataGridTextColumn Header="Message" Binding="{Binding Message}" Width="*"/>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
