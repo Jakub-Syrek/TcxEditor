@@ -1,37 +1,109 @@
 # TcxEditor
 
-A WPF desktop application for creating and editing Garmin TCX activity files (.tcx), built with C# and .NET 9.
+A WPF desktop editor for Garmin TCX activity files.
+
+![CI](https://github.com/Jakub-Syrek/TcxEditor/actions/workflows/tests.yml/badge.svg)
+![Release](https://img.shields.io/github/v/release/Jakub-Syrek/TcxEditor)
+![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet)
+![License](https://img.shields.io/github/license/Jakub-Syrek/TcxEditor)
+![Last commit](https://img.shields.io/github/last-commit/Jakub-Syrek/TcxEditor)
+
+## Overview
+
+TcxEditor is a native Windows desktop application for inspecting, repairing
+and authoring Garmin TrainingCenterDatabase v2 (`.tcx`) files. It targets
+athletes and engineers who need precise, schema-correct edits to GPS tracks,
+laps, heart-rate streams and timestamps before re-uploading the activity to
+Garmin Connect, Strava or any TCX-aware platform.
+
+The application is written in C# on .NET 9 with WPF for the UI. Domain logic
+is intentionally isolated from the UI layer so it can be unit-tested and
+re-hosted in other front-ends in the future.
 
 ## Features
 
-- **Open / Save** — load existing `.tcx` files or create new ones from scratch
-- **Activity** — set sport type (Running, Biking, Other) and start date/time
-- **Laps** — add, edit and delete laps with full stats: duration, distance, speed, calories, heart rate
-- **Trackpoints** — add, edit and delete GPS trackpoints with: coordinates, altitude, distance, heart rate, cadence, speed
-- **Auto-time** — distribute timestamps across trackpoints proportionally to distance
-- **Validation** — checks the document for errors and warnings before saving:
-  - Errors block the save (e.g. negative speed, coordinates out of range, non-chronological timestamps)
-  - Warnings require confirmation (e.g. heart rate out of range, decreasing distance)
-- **Change date** — shift the date of the entire activity (all laps and trackpoints) while keeping the time of day
-- **Shift time** — move all timestamps forward or backward by hours / minutes / seconds
+- Open and save `.tcx` files conforming to Garmin's v2 schema.
+- Set activity metadata: sport (Running / Biking / Other), start time, notes.
+- Add, edit and delete laps with full statistics: duration, distance,
+  maximum speed, calories, average and maximum heart rate, intensity.
+- Add, edit and delete GPS trackpoints with coordinates, altitude, distance,
+  heart rate, cadence and speed.
+- Auto-time distribution: spread timestamps across trackpoints
+  proportionally to distance.
+- Date shifting: move the entire activity to a new date while preserving the
+  time-of-day.
+- Time shifting: move every timestamp forward or backward by an arbitrary
+  offset.
+- Pre-save validation with a clear error/warning split:
+  - Errors block save (negative speed, coordinates out of range,
+    non-chronological timestamps).
+  - Warnings require explicit confirmation (heart rate out of range,
+    decreasing distance).
+- Full undo / redo backed by the Command + Memento patterns.
 
-## Requirements
+## Architecture
 
-- Windows 10 or later
-- [.NET 9 Runtime (Windows)](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
+The codebase is organised around classic design patterns to keep the WPF
+shell thin and the domain testable:
 
-## Build
+| Layer | Folder | Responsibility |
+|-------|--------|----------------|
+| Views | `Views/` | WPF dialogs (lap editor, trackpoint editor, change date, shift time). |
+| ViewModels | `ViewModels/` | Presentation glue between views and the model. |
+| Models | `Models/` | `TcxDatabase`, `TcxActivity`, `TcxLap`, `TcxTrackpoint`, `ValidationIssue`. |
+| Services | `Services/` | `TcxService` (XML load/save facade), `ValidationService`. |
+| Repositories | `Repositories/` | `ITcxRepository` + file-system implementation. |
+| Builders | `Builders/` | Fluent `TcxLapBuilder`, `TcxTrackpointBuilder`. |
+| Factories | `Factories/` | `TcxDialogFactory` for dialog instantiation. |
+| Commands | `Commands/` | `IUndoableCommand` implementations + `CommandHistory` invoker. |
+| Validation | `Validation/` | Strategy pattern: activity / lap / trackpoint validators. |
 
-```bash
-dotnet build TcxEditor.sln
-```
+## Screenshots
 
-## Run
+_Coming soon._
 
-```bash
+## Build and run
+
+Requirements:
+
+- Windows 10 or later.
+- [.NET 9 SDK (Windows)](https://dotnet.microsoft.com/en-us/download/dotnet/9.0).
+
+```powershell
+dotnet build TcxEditor.sln -c Release
 dotnet run --project TcxEditor.csproj
 ```
 
-## TCX compatibility
+## Testing
 
-Output files conform to the [Garmin TrainingCenterDatabase v2 schema](http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd) and can be imported into Garmin Connect, Strava, and other platforms that accept `.tcx` files.
+Tests live in `TcxEditor.Tests` and use **NUnit** with **NSubstitute** for
+mocking. They target the pure domain logic (parsing, builders, command
+history, validation strategies).
+
+```powershell
+dotnet test TcxEditor.sln -c Release
+```
+
+CI runs the same command on every push and pull request to `master`.
+
+## Versioning
+
+Releases follow [Semantic Versioning](https://semver.org/). The version is
+derived automatically from
+[Conventional Commits](https://www.conventionalcommits.org/) on `master`:
+
+- `feat:` -> minor bump.
+- `fix:`, `docs:`, `test:`, `refactor:`, `perf:`, `chore:`, `ci:` -> patch.
+- Any commit body containing `BREAKING CHANGE:` -> major.
+
+The `.github/workflows/version.yml` workflow performs the bump, updates
+`<Version>` in `TcxEditor.csproj`, tags `vX.Y.Z` and publishes a GitHub
+Release with auto-generated notes.
+
+## License
+
+Distributed under the MIT License. See [LICENSE](LICENSE) for details.
+
+## Contact
+
+Jakub Syrek &lt;jakubvonsyrek@gmail.com&gt;
