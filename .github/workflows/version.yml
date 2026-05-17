@@ -1,0 +1,109 @@
+name: Release version bump
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    name: Bump version and tag
+    runs-on: ubuntu-latest
+    if: "!startsWith(github.event.head_commit.message, 'chore(release):')"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "Jakub Syrek"
+          git config user.email "jakubvonsyrek@gmail.com"
+
+      - name: Determine last tag
+        id: last
+        run: |
+          LAST_TAG=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
+          if [ -z "$LAST_TAG" ]; then
+            LAST_TAG=""
+            RANGE="HEAD"
+          else
+            RANGE="$LAST_TAG..HEAD"
+          fi
+          echo "last_tag=$LAST_TAG" >> "$GITHUB_OUTPUT"
+          echo "range=$RANGE" >> "$GITHUB_OUTPUT"
+
+      - name: Determine bump type
+        id: bump
+        run: |
+          RANGE="${{ steps.last.outputs.range }}"
+          COMMITS=$(git log --format='%s%n%b%n--END--' $RANGE)
+          BUMP="none"
+          if echo "$COMMITS" | grep -qE '^BREAKING CHANGE:|^[a-zA-Z]+(\([^)]+\))?!:'; then
+            BUMP="major"
+          elif echo "$COMMITS" | grep -qE '^feat(\([^)]+\))?:'; then
+            BUMP="minor"
+          elif echo "$COMMITS" | grep -qE '^(fix|docs|test|refactor|perf|chore|ci|style|build)(\([^)]+\))?:'; then
+            BUMP="patch"
+          fi
+          echo "bump=$BUMP" >> "$GITHUB_OUTPUT"
+
+      - name: Read current version
+        id: current
+        run: |
+          VERSION=$(grep -oPm1 '(?<=<Version>)[^<]+' TcxEditor.csproj || true)
+          if [ -z "$VERSION" ]; then
+            VERSION="1.0.0"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Compute next version
+        id: next
+        if: steps.bump.outputs.bump != 'none'
+        run: |
+          IFS='.' read -r MAJOR MINOR PATCH <<< "${{ steps.current.outputs.version }}"
+          case "${{ steps.bump.outputs.bump }}" in
+            major) MAJOR=$((MAJOR+1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR+1)); PATCH=0 ;;
+            patch) PATCH=$((PATCH+1)) ;;
+          esac
+          NEXT="$MAJOR.$MINOR.$PATCH"
+          echo "version=$NEXT" >> "$GITHUB_OUTPUT"
+
+      - name: Update csproj version
+        if: steps.bump.outputs.bump != 'none'
+        run: |
+          NEXT="${{ steps.next.outputs.version }}"
+          if grep -q '<Version>' TcxEditor.csproj; then
+            sed -i -E "s|<Version>[^<]+</Version>|<Version>${NEXT}</Version>|" TcxEditor.csproj
+          else
+            sed -i -E "0,/<\/PropertyGroup>/s||    <Version>${NEXT}</Version>\n  </PropertyGroup>|" TcxEditor.csproj
+          fi
+
+      - name: Commit, tag and push
+        if: steps.bump.outputs.bump != 'none'
+        run: |
+          NEXT="${{ steps.next.outputs.version }}"
+          git add TcxEditor.csproj
+          git commit -m "chore(release): v${NEXT}"
+          git tag "v${NEXT}"
+          git push origin HEAD:master
+          git push origin "v${NEXT}"
+
+      - name: Create GitHub Release
+        if: steps.bump.outputs.bump != 'none'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NEXT="${{ steps.next.outputs.version }}"
+          PREV="${{ steps.last.outputs.last_tag }}"
+          if [ -n "$PREV" ]; then
+            gh release create "v${NEXT}" --title "v${NEXT}" --generate-notes --notes-start-tag "$PREV"
+          else
+            gh release create "v${NEXT}" --title "v${NEXT}" --generate-notes
+          fi
