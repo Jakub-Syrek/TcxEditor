@@ -8,4 +8,12 @@
     <AssemblyName>TcxEditor</AssemblyName>
     <RootNamespace>TcxEditor</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="TcxEditor.Tests\**" />
+    <EmbeddedResource Remove="TcxEditor.Tests\**" />
+    <None Remove="TcxEditor.Tests\**" />
+    <Page Remove="TcxEditor.Tests\**" />
+    <ApplicationDefinition Remove="TcxEditor.Tests\**" />
+  </ItemGroup>
 </Project>
